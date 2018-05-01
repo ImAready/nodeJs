@@ -22,6 +22,20 @@ app.get('/products', function(req, res){
     res.send(`<h1>Products</h1><ul>${output}</ul><a href="/cart">Cart</a>`);
 });
 
+app.get('/cart', function(req, res){
+    var cart = req.cookies.cart;
+
+    if(!cart){
+        res.send('empty cart');
+    } else{
+        var output = '';
+        for(var id in cart){
+            output += `<li>${products[id].title} (${cart[id]})</li>`
+        }
+    }
+    res.send(`<ul>${output}</ul><a href="/products">Products List</a>`);
+});
+
 /*
 cart = {
     제품 아이디 : 제품 수량
