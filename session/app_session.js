@@ -28,6 +28,7 @@ app.get('/temp', function(req, res){
 app.get('/auth/login', function(req, res){
     var output = '';
     output = `
+    <h1>Login</h1>
         <form action="/auth/login" method="post">
             <p>
                 <input type="text" name="username" placeholder="username">
