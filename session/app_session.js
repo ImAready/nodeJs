@@ -46,19 +46,34 @@ app.get('/auth/login', function(req, res){
 });
 app.post('/auth/login', function(req, res){
     var user = {
-        username:'hello',
-        password:'111'
+      username:'hello',
+      password:'111',
+      displayName:'Master'
     };
+
     var uname = req.body.username;
     var pwd = req.body.password;
 
     if(uname === user.username && pwd === user.password){
-        // res.send('Hello master!');
-        res.redirect('/welcome');
+      req.session.displayName = user.displayName;
+      res.redirect('/welcome');
     } else {
-        res.send('Who are you? <a href="/auth/login">Login</a>')
+      res.send('Who are you? <a href="/auth/login">login</a>');
     }
-    res.send(req.body.username);
+});
+
+app.get('/welcome', function(req, res){
+    if(req.session.displayName) {
+      res.send(`
+        <h1>Hello, ${req.session.displayName}</h1>
+        <a href="/auth/logout">logout</a>
+      `);
+    } else {
+      res.send(`
+        <h1>Welcome</h1>
+        <a href="/auth/login">Login</a>
+      `);
+    }
 });
 
 app.listen(3003, function(){
