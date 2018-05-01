@@ -76,6 +76,11 @@ app.get('/welcome', function(req, res){
     }
 });
 
+app.get('/auth/logout', function(req, res){
+    delete req.session.displayName;
+    res.redirect('/welcome');
+});
+
 app.listen(3003, function(){
     console.log('Connected 3003 port...');
 });
