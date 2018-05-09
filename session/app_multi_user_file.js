@@ -56,7 +56,7 @@ app.post('/auth/login', function(req, res){
 
     for(var i = 0 ; i <users.length; i++){
         var user = users[i]
-        if(uname === user.username && md5(pwd) === user.password){
+        if(uname === user.username && md5(pwd+salt) === user.password){
             req.session.displayName = user.displayName;
             return req.session.save(function(){ //session이 안전하게 저장한 후에
                 res.redirect('/welcome');
@@ -106,12 +106,12 @@ app.get('/auth/register', function(req, res){
     
     res.send(output);
 });
-
+var salt = '!@#%$!#^&^&adfj#$!$';
 // 임의의 기본 사용자
 var users=[
     {
         username:'hello',
-        password:'b59c67bf196a4758191e42f76670ceba',
+        password:'e5f5e817e444c209d051a54bf34effb8',
         displayName:'Master'
     }
 ];
