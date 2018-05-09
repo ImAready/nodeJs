@@ -4,7 +4,8 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 //session을 file에 저장
 const fileStore = require('session-file-store')(session); // express-session과 의존관계 ->인자로 넘겨줌
-
+//암호화. 더이상 안씀
+const md5 = require('md5');
 
 app.use(bodyParser.urlencoded({ extended : false }));
 app.use(session({
@@ -55,7 +56,7 @@ app.post('/auth/login', function(req, res){
 
     for(var i = 0 ; i <users.length; i++){
         var user = users[i]
-        if(uname === user.username && pwd === user.password){
+        if(uname === user.username && md5(pwd) === user.password){
             req.session.displayName = user.displayName;
             return req.session.save(function(){ //session이 안전하게 저장한 후에
                 res.redirect('/welcome');
@@ -110,7 +111,7 @@ app.get('/auth/register', function(req, res){
 var users=[
     {
         username:'hello',
-        password:'111',
+        password:'b59c67bf196a4758191e42f76670ceba',
         displayName:'Master'
     }
 ];
