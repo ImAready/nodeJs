@@ -9,6 +9,7 @@ const Pool = require('pg-pool')
 const pgStore = require('connect-pg-simple')(session)
 //암호화
 const bkfd2Password = require("pbkdf2-password");
+const hasher = bkfd2Password();
 const passport = require('passport');
 //소셜 인증
 const LocalStrategy = require('passport-local').Strategy;
@@ -22,6 +23,15 @@ const pgPool = new Pool({
     password: '1111',
     port: 5432
 });
+// pg connected
+const conn = new pg.Client({
+  database: 'o2',
+  user: 'postgres',
+  password: '1111',
+  port: 5432
+});
+conn.connect();
+
 app.use(session({
     secret: '1231임의13415값asdfasdf~#!@',
     resave: false,
@@ -92,18 +102,32 @@ var users = [
 app.post('/auth/register', (req, res) => {
     hasher({password: req.body.password}, (err, pass, salt, hash) => {
         var user = {
-            authId: 'local:' + req.body.username,
+            authid: 'local:' + req.body.username,
             username: req.body.username,
             password: hash,
             salt: salt,
-            displayName: req.body.displayName
+            displayName: req.body.displayName,
+            email : ''
         };
-        users.push(user);
-        req.login(user, function (err) { // passport가 생성한 method
-            req.session.save(() => {
-                res.redirect('/welcome');
-            });
-        });  
+
+        var sql = `INSERT INTO usrts (authid, username, password, salt, displayname, email) 
+        VALUES ($1, $2, $3, $4, $5, $6)`;
+        conn.query(sql,  [user.authid, user.username, 
+          user.password, user.salt, 
+          user.displayname, user.email], function(err, results){
+          if(err){
+            console.log(err);
+            res.status(500);
+          } else {
+            res.redirect('/welcome');
+          }
+        });
+        // users.push(user);
+        // req.login(user, function (err) { // passport가 생성한 method
+        //     req.session.save(() => {
+        //         res.redirect('/welcome');
+        //     });
+        // });  
     });
 });
 
@@ -147,8 +171,8 @@ passport.use(new LocalStrategy(
 ));
 
 passport.use(new KakaoStrategy({
-    clientID : 'rest ID',
-    clientSecret: 'secret ID',
+    clientID : 'rest id',
+    clientSecret: 'secret id',
     callbackURL : '/oauth'
     },
     function(accessToken, refreshToken, profile, done){
@@ -216,5 +240,5 @@ app.get('/count', (req, res) => {
 });
 
 app.listen(3003, function(){
-    console.log("Connected 3000 port!!");
+    console.log("Connected 3003 port!!");
 });
