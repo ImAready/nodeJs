@@ -119,7 +119,11 @@ app.post('/auth/register', (req, res) => {
             console.log(err);
             res.status(500);
           } else {
-            res.redirect('/welcome');
+            req.login(user, function(err){
+              req.session.save(function(){
+                res.redirect('/welcome');
+              });
+            });
           }
         });
         // users.push(user);
@@ -134,39 +138,66 @@ app.post('/auth/register', (req, res) => {
 
 // passport - sessions
 passport.serializeUser(function (user, done) {
-    console.log('serializeUser', user);
-    done(null, user.authId);
+    console.log('serializeUser>>>>>>>>>>', user);
+    done(null, user.authid);
 });
 
 passport.deserializeUser(function (id, done) {
-    console.log('deserializeUser', id);
-    for (i in users) {
-        var user = users[i];
-        if(user.authId == id){
-            return done(null, user);
-        }
-    }
-    done(null, false);
+    console.log('deserializeUser>>>>>>>>>', id);
+    var sql = `SELECT * FROM usrts WHERE authid = $1`;
+    conn.query(sql, [id], function(err, results){
+      //console.log(sql, err, results);
+      if(err){
+        console.log(err)
+        done('Threr is no user.');
+      } else {
+        done(null, results.rows[0]);
+      }
+    });
+    // for (i in users) {
+    //     var user = users[i];
+    //     if(user.authId == id){
+    //         return done(null, user);
+    //     }
+    // }
+    // done(null, false);
 });
 // passport - LocalStrategy
 passport.use(new LocalStrategy(
     function(username, password, done) {
         var uname = username;
         var pwd = password;
-        for (i in users) {
-            var user = users[i];
-            if (uname === user.username) {
-                return hasher({ password: pwd, salt: user.salt }, (err, pass, salt, hash) => {
-                    if (hash === user.password) {
-                        console.log('LocalStrategy', user);
-                        done(null, user);
-                    } else {
-                        done(null, false);
-                    }
-                });
-            }
-        }
-        done(null, false);
+
+        var sql = `SELECT * FROM usrts WHERE authid = $1`;
+        conn.query(sql, ['local:'+uname], function(err, results){
+          console.log(results.rows[0]);
+          if(err){
+            return done('There is no user.');
+          }
+          var user = results.rows[0];
+          return hasher({ password: pwd, salt: user.salt }, (err, pass, salt, hash) => {
+              if (hash === user.password) {
+                  console.log('LocalStrategy', user);
+                  done(null, user);
+              } else {
+                  done(null, false);
+              }
+          });
+        })
+        // for (i in users) {
+        //     var user = users[i];
+        //     if (uname === user.username) {
+        //         return hasher({ password: pwd, salt: user.salt }, (err, pass, salt, hash) => {
+        //             if (hash === user.password) {
+        //                 console.log('LocalStrategy', user);
+        //                 done(null, user);
+        //             } else {
+        //                 done(null, false);
+        //             }
+        //         });
+        //     }
+        // }
+        // done(null, false);
     }
 ));
 
