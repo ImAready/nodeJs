@@ -89,16 +89,6 @@ app.get('/auth/register', (req, res) => {
     res.send(output);
 });
 
-// users array에 user 추가 (전역변수)
-var users = [
-    {
-        authId: 'local: lcm',
-        username: 'lcm',
-        password: 'TB4ZaYf0o6gJRDpvNIOzF0qEoNWc8iNE9BO2C3dmUZP8Z9YuglLQwqZQ2Soq8XINOSNjwEIamY1YQl32OVjvSKnasfQ0canEDzo00Kus+xyIr2cXiXxqaVk/BuR3z95QVwxcDwbecVqc00/SXZT3dH/kmQlx0PoAGL8R2MA1s0I=',  // '11111' + salt
-        salt: '/K4PnzHaTVSU3SbrgOvkWx0er/y0FOcwDMG/wiTv7whQ+Fjte8AwgJdsm++lkQ4zfPOWWroZwSS1a/Ns6JeseQ==',
-        displayName: 'LCM'
-    }
-];
 app.post('/auth/register', (req, res) => {
     hasher({password: req.body.password}, (err, pass, salt, hash) => {
         var user = {
@@ -210,20 +200,28 @@ passport.use(new KakaoStrategy({
 
     console.log(profile);
     var authId = 'kakao:' + profile.id;
-    for(i in users){
-        var user = users[i];
-        if(user.authId === authId){
-            return done(null, user);
+    var sql = `SELECT * FROM usrts WHERE authid = $1`;
+    conn.query(sql, [authId], function(err, results){
+        if(results.length > 0){
+            done(null, reaults.rows[0]);
+        } else {
+            var newuser = {
+                'authId': authId,
+                'displayName': profile.displayName,
+                'email': profile._json.kaccount_email,
+            };
+            var sql = `INSERT INTO usrts (authid, displayname, email) 
+                    VALUES ($1, $2, $3)`;
+            conn.query(sql, [newuser.authid, newuser.displayname, newuser.email], (err, result) => {
+                if(err){
+                    console.log(err);
+                    done('ERROR');
+                } else{
+                    done(null, newuser);
+                }
+            });
         }
-    }
-    var newuser = {
-        'authId': authId,
-        'displayName': profile.displayName,
-        'email': profile._json.kaccount_email,
-    };
-    console.log('newuser >> '+ newuser);
-    users.push(newuser);
-    done(null, newuser);
+    });
     }
 ));
 
