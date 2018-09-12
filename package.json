@@ -2,7 +2,11 @@
   "name": "nodejs",
   "version": "1.0.0",
   "description": "",
+<<<<<<< HEAD
   "main": "index.js",
+=======
+  "main": "app_cookie.js",
+>>>>>>> a264df819927878b19f6e808d19f2c6f83b99d9b
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -17,6 +21,24 @@
   },
   "homepage": "https://github.com/ImAready/nodeJs#readme",
   "dependencies": {
+<<<<<<< HEAD
     "express": "^4.16.3"
+=======
+    "body-parser": "^1.18.2",
+    "connect-pg-simple": "^4.2.1",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.16.3",
+    "express-session": "^1.15.6",
+    "jade": "^1.11.0",
+    "md5": "^2.2.1",
+    "passport": "^0.4.0",
+    "passport-kakao": "0.0.5",
+    "passport-local": "^1.0.0",
+    "pbkdf2-password": "^1.2.1",
+    "pg": "^7.4.1",
+    "pg-pool": "^2.0.3",
+    "session-file-store": "^1.2.0",
+    "sha256": "^0.2.0"
+>>>>>>> a264df819927878b19f6e808d19f2c6f83b99d9b
   }
 }
